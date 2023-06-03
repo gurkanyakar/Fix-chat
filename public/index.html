@@ -1,53 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+      crossorigin="anonymous"
+    />
+    <style>
+      body {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        background-image: url("/assets/images/background.jpg");
+        background-size: cover;
+      }
+      .card {
+        background-color: rgba(255, 255, 255, 0.8);
+      }
+    </style>
     <title>Fix Chat</title>
-</head>
-<body>
-    <h1>Fix Chat</h1>
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <div class="card-body">
+          <h1 class="mt-5 text-center">Fix Chat</h1>
 
-    <div>
-        <label for="username">Username:</label>
-        <input type="text" id="username">
-        <button id="connectBtn">Connect</button>
+          <div id="user-login-block" class="row mt-5 justify-content-center">
+            <div class="col-lg-4">
+              <form>
+                <div class="mb-3">
+                  <label for="username" class="form-label">Username:</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="username"
+                    required
+                  />
+                </div>
+                <div class="text-center">
+                  <button id="connectBtn" type="button" class="btn btn-primary">
+                    Connect
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <div id="online-users" class="row mt-5">
+            <div class="col">
+              <h3>Connected Users</h3>
+              <ul id="userList"></ul>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div>
-        <h3>Connected Users</h3>
-        <ul id="userList"></ul>
-    </div>
-
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+      crossorigin="anonymous"
+    ></script>
     <script src="/socket.io/socket.io.js"></script>
-</body>
-<script>
-  const socket = io();
+  </body>
+  <script>
+    const socket = io();
 
-  //online users
-  socket.on('userList', (users) => {
-    const userListElement = document.getElementById('userList');
-    userListElement.innerHTML = '';
+    //online users
+    socket.on("userList", (users) => {
+      const userListElement = document.getElementById("userList");
+      userListElement.innerHTML = "";
 
-    users.forEach((user) => {
-      const userElement = document.createElement('p');
-      userElement.textContent = user;
-      userListElement.appendChild(userElement);
+      users.forEach((user) => {
+        const userElement = document.createElement("p");
+        userElement.textContent = user;
+        userListElement.appendChild(userElement);
+      });
     });
-  });
 
-  const connectBtn = document.getElementById('connectBtn');
+    const onlineUsers = document.getElementById("online-users");
+    const connectBtn = document.getElementById("connectBtn");
+    const userLoginBlock = document.getElementById("user-login-block");
 
-  //when click connect button
-  connectBtn.addEventListener('click', () => {
-    const usernameInput = document.getElementById('username');
-    const username = usernameInput.value;
-    if (username.trim() !== '') {
-      socket.emit('join', username);
-      usernameInput.disabled = true;
-      connectBtn.disabled = true;
-    }
-  });
-</script>
+    onlineUsers.style.display = "none";
+    //when click connect button
+    connectBtn.addEventListener("click", () => {
+      const usernameInput = document.getElementById("username");
+      const username = usernameInput.value;
+      if (username.trim() !== "") {
+        socket.emit("join", username);
+        userLoginBlock.style.display = "none";
+        onlineUsers.style.display = "block";
+      }
+    });
+  </script>
 </html>

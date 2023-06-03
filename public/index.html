@@ -17,18 +17,26 @@
         justify-content: center;
         align-items: center;
 
-        background-image: url("/assets/images/background.jpg");
+        background-image: url("assets/images/background.jpg");
         background-size: cover;
       }
+
       .card {
         background-color: rgba(255, 255, 255, 0.8);
+        opacity: 1;
+        transition: opacity 0.7s ease, transform 0.7s ease;
+      }
+
+      .card.hidden {
+        opacity: 0;
+        transform: translateY(-100%);
       }
     </style>
     <title>Fix Chat</title>
   </head>
   <body>
     <div class="container">
-      <div class="card">
+      <div class="card" id="user-login-card">
         <div class="card-body">
           <h1 class="mt-5 text-center">Fix Chat</h1>
 
@@ -37,28 +45,21 @@
               <form>
                 <div class="mb-3">
                   <label for="username" class="form-label">Username:</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="username"
-                    required
-                  />
+                  <input type="text" class="form-control" id="username" required />
                 </div>
                 <div class="text-center">
-                  <button id="connectBtn" type="button" class="btn btn-primary">
-                    Connect
-                  </button>
+                  <button id="connectBtn" type="button" class="btn btn-primary">Connect</button>
                 </div>
               </form>
             </div>
           </div>
+        </div>
+      </div>
 
-          <div id="online-users" class="row mt-5">
-            <div class="col">
-              <h3>Connected Users</h3>
-              <ul id="userList"></ul>
-            </div>
-          </div>
+      <div class="card mt-5" id="online-users" style="display: none;">
+        <div class="card-body">
+          <h3 class="card-title">Connected Users</h3>
+          <ul id="userList"></ul>
         </div>
       </div>
     </div>
@@ -69,36 +70,43 @@
       crossorigin="anonymous"
     ></script>
     <script src="/socket.io/socket.io.js"></script>
-  </body>
-  <script>
-    const socket = io();
+    <script>
+      const socket = io();
 
-    //online users
-    socket.on("userList", (users) => {
-      const userListElement = document.getElementById("userList");
-      userListElement.innerHTML = "";
+      //online users
+      socket.on("userList", (users) => {
+        const userListElement = document.getElementById("userList");
+        userListElement.innerHTML = "";
 
-      users.forEach((user) => {
-        const userElement = document.createElement("p");
-        userElement.textContent = user;
-        userListElement.appendChild(userElement);
+        users.forEach((user) => {
+          const userElement = document.createElement("p");
+          userElement.textContent = user;
+          userListElement.appendChild(userElement);
+        });
       });
-    });
 
-    const onlineUsers = document.getElementById("online-users");
-    const connectBtn = document.getElementById("connectBtn");
-    const userLoginBlock = document.getElementById("user-login-block");
+      const onlineUsers = document.getElementById("online-users");
+      const connectBtn = document.getElementById("connectBtn");
+      const userLoginCard = document.getElementById("user-login-card");
 
-    onlineUsers.style.display = "none";
-    //when click connect button
-    connectBtn.addEventListener("click", () => {
-      const usernameInput = document.getElementById("username");
-      const username = usernameInput.value;
-      if (username.trim() !== "") {
-        socket.emit("join", username);
-        userLoginBlock.style.display = "none";
-        onlineUsers.style.display = "block";
-      }
-    });
-  </script>
+      //when click connect button
+      connectBtn.addEventListener("click", () => {
+        const usernameInput = document.getElementById("username");
+        const username = usernameInput.value;
+        if (username.trim() !== "") {
+          socket.emit("join", username);
+
+          // Apply fade-out effect to user login card
+          userLoginCard.classList.add("hidden");
+
+          setTimeout(() => {
+            // Hide user login card
+            userLoginCard.style.display = "none";
+            onlineUsers.style.display = "block";
+            onlineUsers.classList.remove("hidden");
+          }, 700);
+        }
+      });
+    </script>
+  </body>
 </html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix Chat</title>
+</head>
+<body>
+    <h1>Fix Chat</h1>
+
+    <div>
+        <label for="username">Username:</label>
+        <input type="text" id="username">
+        <button id="connectBtn">Connect</button>
+    </div>
+
+    <div>
+        <h3>Connected Users</h3>
+        <ul id="userList"></ul>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+</body>
+<script>
+  const socket = io();
+
+  //online users
+  socket.on('userList', (users) => {
+    const userListElement = document.getElementById('userList');
+    userListElement.innerHTML = '';
+
+    users.forEach((user) => {
+      const userElement = document.createElement('p');
+      userElement.textContent = user;
+      userListElement.appendChild(userElement);
+    });
+  });
+
+  const connectBtn = document.getElementById('connectBtn');
+
+  //when click connect button
+  connectBtn.addEventListener('click', () => {
+    const usernameInput = document.getElementById('username');
+    const username = usernameInput.value;
+    if (username.trim() !== '') {
+      socket.emit('join', username);
+      usernameInput.disabled = true;
+      connectBtn.disabled = true;
+    }
+  });
+</script>
+</html>

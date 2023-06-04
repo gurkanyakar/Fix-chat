@@ -31,6 +31,12 @@ socketio.on('connection', (socket) => {
         console.log(username + ' disconnected to server..!')
         socketio.emit('userList', Array.from(onlineUsers.values()));
     });
+
+    socket.on("chat message", (data) => {
+      const { msg} = data;
+        socketio.emit("chat message", { msg, isGlobal: true }); // Broadcast global message to all clients
+
+    });
   });
 
 

@@ -1,112 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
-      crossorigin="anonymous"
-    />
-    <style>
-      body {
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+  rel="stylesheet"
+  integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+  crossorigin="anonymous"
+/>
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
 
-        background-image: url("assets/images/background.jpg");
-        background-size: cover;
-      }
+      background-image: url("assets/images/background.jpg");
+      background-size: cover;
+    }
 
-      .card {
-        background-color: rgba(255, 255, 255, 0.8);
-        opacity: 1;
-        transition: opacity 0.7s ease, transform 0.7s ease;
-      }
+    .card {
+      background-color: rgba(255, 255, 255, 0.8);
+      opacity: 1;
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
 
-      .card.hidden {
-        opacity: 0;
-        transform: translateY(-100%);
-      }
-    </style>
-    <title>Fix Chat</title>
-  </head>
-  <body>
-    <div class="container">
-      <div class="card" id="user-login-card">
-        <div class="card-body">
-          <h1 class="mt-5 text-center">Fix Chat</h1>
+    .card.hidden {
+      opacity: 0;
+      transform: translateY(-100%);
+    }
+  </style>
+  <title>Fix Chat</title>
+</head>
 
-          <div id="user-login-block" class="row mt-5 justify-content-center">
-            <div class="col-lg-4">
-              <form>
-                <div class="mb-3">
-                  <label for="username" class="form-label">Username:</label>
-                  <input type="text" class="form-control" id="username" required />
-                </div>
-                <div class="text-center">
+<body>
+  <div class="container" id="main-container">
+    <div id="user-login-block">
+      <div class="row">
+        <div class="card" id="user-login-card">
+          <div class="card-body">
+            <h1 class="mt-5 text-center">Fix Chat</h1>
+
+            <div class="row mt-5 justify-content-center">
+              <div class="col-lg-4">
+                <form>
+                  <div class="mb-3">
+                    <label for="username" class="form-label">Username:</label>
+                    <input type="text" class="form-control" id="username" required />
+                  </div>
+                  <div class="text-center">
                   <button id="connectBtn" type="button" class="btn btn-primary">Connect</button>
-                </div>
-              </form>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="card mt-5" id="online-users" style="display: none;">
-        <div class="card-body">
-          <h3 class="card-title">Connected Users</h3>
-          <ul id="userList"></ul>
+    <div id="online-users" style="display: none">
+      <div class="row">
+        <div class="card mt-5 col-md-3">
+          <div class="card-body">
+            <h3 class="card-title">Connected Users</h3>
+            <ul id="userList"></ul>
+          </div>
         </div>
       </div>
     </div>
 
+    <div id="chat-card" style="display: none">
+      <div class="row">
+        <div class="card mt-5 col-md-5">
+          <div class="card-header">
+            <ul class="nav nav-tabs" id="chatTabs">
+              <li class="nav-item">
+                <a class="nav-link active" id="global-tab" data-bs-toggle="tab" href="#global-chat">Global Chat</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="room-tab" data-bs-toggle="tab" href="#room-chat">Room Chat</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" id="room-tab" data-bs-toggle="tab" href="#private-chat">Private Chat</a>
+              </li>
+            </ul>
+          </div>
+          <div class="card-body tab-content" id="chatContent">
+            <div class="tab-pane fade show active" id="global-chat" role="tabpanel" aria-labelledby="global-tab">
+              <ul id="globalChat" class="chat-list"></ul>
+            </div>
+            <div class="tab-pane fade" id="room-chat" role="tabpanel" aria-labelledby="room-tab">
+              <ul id="roomChat" class="chat-list"></ul>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="input-group">
+              <input type="text" class="form-control" id="messageInput" placeholder="Type a message..." />
+              <button class="btn btn-primary" id="sendBtn">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    const mainContainer = document.getElementById("main-container");
+    const connectBtn = document.getElementById("connectBtn");
+    const sendBtn = document.getElementById("sendBtn");
+    const messageInput = document.getElementById("messageInput");
+    
+    connectBtn.addEventListener("click", () => {
+      const usernameInput = document.getElementById("username");
+      const username = usernameInput.value;
+      if (username.trim() !== "") {
+        socket.emit("join", username);
+
+        mainContainer.removeChild(
+          document.getElementById("user-login-block")
+        );
+        document.getElementById("online-users").style.display = "block";
+        document.getElementById("chat-card").style.display = "block";
+      }
+    });
+
+    socket.on("userList", (userList) => {
+      const userListElement = document.getElementById("userList");
+      userListElement.innerHTML = ""; // Önceki kullanıcı listesini temizle
+
+      userList.forEach((username) => {
+        const listItem = document.createElement("li");
+        listItem.textContent = username;
+        userListElement.appendChild(listItem);
+      });
+    });
+
+    socket.on("chat message", (msg) => {
+      const globalChat = document.getElementById("globalChat");
+      const listItem = document.createElement("li");
+      listItem.textContent = msg.msg;
+      globalChat.appendChild(listItem);
+    });
+
+    // Mesaj gönderme işlemini dinlemek ve sunucuya mesajı iletmek için event listener ekle
+
+
+    sendBtn.addEventListener("click", () => {
+      const message = messageInput.value;
+      if (message.trim() !== "") {
+        socket.emit("chat message", { msg: message });
+        messageInput.value = "";
+      }
+    });
+  </script>
     <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
-      crossorigin="anonymous"
-    ></script>
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-      const socket = io();
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+    crossorigin="anonymous"
+  ></script>
+</body>
 
-      //online users
-      socket.on("userList", (users) => {
-        const userListElement = document.getElementById("userList");
-        userListElement.innerHTML = "";
-
-        users.forEach((user) => {
-          const userElement = document.createElement("p");
-          userElement.textContent = user;
-          userListElement.appendChild(userElement);
-        });
-      });
-
-      const onlineUsers = document.getElementById("online-users");
-      const connectBtn = document.getElementById("connectBtn");
-      const userLoginCard = document.getElementById("user-login-card");
-
-      //when click connect button
-      connectBtn.addEventListener("click", () => {
-        const usernameInput = document.getElementById("username");
-        const username = usernameInput.value;
-        if (username.trim() !== "") {
-          socket.emit("join", username);
-
-          // Apply fade-out effect to user login card
-          userLoginCard.classList.add("hidden");
-
-          setTimeout(() => {
-            // Hide user login card
-            userLoginCard.style.display = "none";
-            onlineUsers.style.display = "block";
-            onlineUsers.classList.remove("hidden");
-          }, 700);
-        }
-      });
-    </script>
-  </body>
 </html>

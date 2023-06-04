@@ -33,10 +33,13 @@ socketio.on('connection', (socket) => {
     });
 
     socket.on("chat message", (data) => {
-      const { msg} = data;
-        socketio.emit("chat message", { msg, isGlobal: true }); // Broadcast global message to all clients
-
-    });
+      const { sender, message } = data;
+      console.log("Gönderen: " + sender);
+      console.log("Mesaj: " + message);
+      socketio.emit("chat message", { sender, message, isGlobal: true });
+        });
+    
+    
   });
 
 

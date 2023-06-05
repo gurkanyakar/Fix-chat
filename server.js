@@ -16,6 +16,19 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(publicPath, 'index.html'));
 });
 
+app.get('/download/:filename', (req, res) => {
+  const filename = req.params.filename; // İstekten dosya adını al
+
+  const filePath = path.join(__dirname, 'dosya-klasoru', filename); // Dosya yolu oluştur
+
+  res.download(filePath, (err) => {
+    if (err) {
+      console.error('Dosya indirme hatası:', err);
+      res.status(500).send('Dosya indirme hatası'); // Hata durumunda uygun bir yanıt gönder
+    }
+  });
+});
+
 const onlineUsers = new Map(); // çevrimiçi kullanıcı listesi
 
 socketio.on('connection', (socket) => {
@@ -33,18 +46,23 @@ socketio.on('connection', (socket) => {
     socketio.emit('userList', Array.from(onlineUsers.values()));
   });
 
-  socket.on('chat message', (msg) => {
-    const { sender, message, file } = msg;
-
-    const data = {
+  socket.on('chat message', (data) => {
+    const { sender, message, file } = data;
+  
+    const messageData = {
       sender: sender,
       message: message,
-      file: file ? { name: file.name, type: file.type, content: file.content } : null
+      file: null
     };
-
-    socketio.emit('chat message', data);
-
-    // Mesajı kullanmak için istediğiniz işlemleri burada yapabilirsiniz
+  
+    if (file && file.type.indexOf("image/") === 0) {
+      messageData.file = {
+        content: file.content,
+        name: file.name
+      };
+    }
+  
+    socketio.emit('chat message', messageData);
   });
 
 });

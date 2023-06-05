@@ -43,49 +43,58 @@ socket.on("userList", (userList) => {
 });
 
 socket.on("chat message", (data) => {
-  const globalChat = document.getElementById("globalChat");
-  const listItem = document.createElement("li");
-  listItem.classList.add("chat-item");
-
-  const messageContent = document.createElement("div");
-  messageContent.classList.add("message-content");
-
-  const senderInfo = document.createElement("span");
-  senderInfo.classList.add("sender-info");
-  senderInfo.textContent = data.sender + ": ";
-
-  const messageText = document.createElement("span");
-  messageText.classList.add("message-text");
-  messageText.textContent = data.message;
-
-  const timeInfo = document.createElement("span");
-  timeInfo.classList.add("time-info");
-  const currentTime = new Date();
-  const formattedTime = currentTime.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "numeric",
-    hour12: true,
+    const globalChat = document.getElementById("globalChat");
+    const listItem = document.createElement("li");
+    listItem.classList.add("chat-item");
+  
+    const messageContent = document.createElement("div");
+    messageContent.classList.add("message-content");
+  
+    const senderInfo = document.createElement("span");
+    senderInfo.classList.add("sender-info");
+    senderInfo.textContent = data.sender + ": ";
+  
+    const messageText = document.createElement("span");
+    messageText.classList.add("message-text");
+    messageText.textContent = data.message;
+  
+    const timeInfo = document.createElement("span");
+    timeInfo.classList.add("time-info");
+    const currentTime = new Date();
+    const formattedTime = currentTime.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "numeric",
+      hour12: true,
+    });
+    timeInfo.textContent = formattedTime;
+  
+    messageContent.appendChild(senderInfo);
+  
+    if (data.file && data.file.type.startsWith("image/")) {
+        const fileImage = document.createElement("img");
+        fileImage.src = data.file.content;
+        fileImage.alt = data.file.name;
+        fileImage.style.maxWidth = "100%";
+        fileImage.style.maxHeight = "200px";
+        messageContent.appendChild(fileImage);
+      } else if (data.file) {
+        const fileLink = document.createElement("a");
+        const downloadURL = URL.createObjectURL(new Blob([data.file.content], { type: "application/octet-stream" }));
+        fileLink.href = downloadURL;
+        fileLink.download = data.file.name;
+        fileLink.textContent = 'Dosyayı İndir';
+      
+        messageContent.appendChild(fileLink);
+      }
+      
+      messageContent.appendChild(messageText);
+      messageContent.appendChild(timeInfo);
+      listItem.appendChild(messageContent);
+      
+      globalChat.appendChild(listItem);
+      
   });
-  timeInfo.textContent = formattedTime;
-
-  messageContent.appendChild(senderInfo);
-
-  if (data.file) {
-    const fileImage = document.createElement("img");
-    fileImage.src = data.file.content;
-    fileImage.alt = data.file.name;
-    fileImage.style.maxWidth = "100%";
-    fileImage.style.maxHeight = "200px";
-    messageContent.appendChild(fileImage);
-  }
-
-  messageContent.appendChild(messageText);
-  messageContent.appendChild(timeInfo);
-  listItem.appendChild(messageContent);
-
-  globalChat.appendChild(listItem);
-});
-
+  
 sendBtn.addEventListener("click", (e) => {
   e.preventDefault();
 

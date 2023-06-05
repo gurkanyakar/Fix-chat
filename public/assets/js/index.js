@@ -70,22 +70,14 @@ socket.on("chat message", (data) => {
   
     messageContent.appendChild(senderInfo);
   
-    if (data.file && data.file.type.startsWith("image/")) {
-        const fileImage = document.createElement("img");
-        fileImage.src = data.file.content;
-        fileImage.alt = data.file.name;
-        fileImage.style.maxWidth = "100%";
-        fileImage.style.maxHeight = "200px";
-        messageContent.appendChild(fileImage);
-      } else if (data.file) {
-        const fileLink = document.createElement("a");
-        const downloadURL = URL.createObjectURL(new Blob([data.file.content], { type: "application/octet-stream" }));
-        fileLink.href = downloadURL;
-        fileLink.download = data.file.name;
-        fileLink.textContent = 'Dosyayı İndir';
-      
-        messageContent.appendChild(fileLink);
-      }
+    if (data.file) {
+      const fileImage = document.createElement("img");
+      fileImage.src = data.file.content;
+      fileImage.alt = data.file.name;
+      fileImage.style.maxWidth = "100%";
+      fileImage.style.maxHeight = "200px";
+      messageContent.appendChild(fileImage);
+    }
       
       messageContent.appendChild(messageText);
       messageContent.appendChild(timeInfo);
@@ -158,3 +150,4 @@ emoji.forEach((e) => {
   });
   emojiContainer.appendChild(emojiButton);
 });
+

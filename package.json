@@ -9,6 +9,7 @@
   "author": "gurkan yakar",
   "license": "ISC",
   "dependencies": {
+    "bootstrap": "^5.3.0",
     "express": "^4.18.2",
     "socket.io": "^4.6.2"
   }

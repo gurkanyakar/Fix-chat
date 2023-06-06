@@ -22,6 +22,10 @@ body {
     min-height: 400px; /* Mesaj listesinin maksimum yüksekliği */
     overflow-y: auto; /* Aşırı mesajları kaydırmak için dikey kaydırma çubuğu ekler */
   }
+  .chat-list-2 {
+    min-height: 400px; /* Mesaj listesinin maksimum yüksekliği */
+    overflow-y: auto; /* Aşırı mesajları kaydırmak için dikey kaydırma çubuğu ekler */
+  }
   .current-user {
     background-color: #af824e; /* Seçtiğiniz arka plan rengi */
     font-weight: bold;
